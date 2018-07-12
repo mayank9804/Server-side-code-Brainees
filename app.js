@@ -20,6 +20,7 @@ let studentRouter = require('./src/routes/studentRoutes');
 let mentorRouter = require('./src/routes/mentorRoutes');
 let loginRouter = require('./src/routes/loginRoutes');
 let mentorGeneralRouter = require('./src/routes/mentorGeneralRoutes/mentorGeneralRoutes');
+let mentorQuizRouter = require('./src/routes/mentorGeneralRoutes/mentorQuizRoutes');
 let studentGeneralRouter = require('./src/routes/studentGeneralRoutes/studentGeneralRoutes');
 let commonRouter = require('./src/routes/commonRoutes');
 
@@ -29,7 +30,8 @@ app.use('/mentor',mentorRouter);
 app.use('/login',loginRouter);
 app.use('/student/general',studentGeneralRouter);
 app.use('/mentor/general',mentorGeneralRouter);
-app.use('/common/',commonRouter)
+app.use('/mentor/quiz',mentorQuizRouter);
+app.use('/common/',commonRouter);
 
 app.listen(3000,()=>{
     console.log("Server Started on port 3000");

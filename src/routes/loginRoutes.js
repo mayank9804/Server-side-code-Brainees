@@ -22,7 +22,10 @@ function route() {
                         
                         let payload = {sub:student._id,role:'isStudent'};
                         let token = jwt.encode(payload, 'brainees');
-                        return res.status(200).send({ message: "Authorized user!", token: token });
+                        setTimeout(()=>{
+                            return res.status(200).send({ message: "Authorized user!", token: token });
+                        },4000);
+                        
                     }
                     else
                         return res.status(401).send({ message: "Invalid username or password" });

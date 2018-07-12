@@ -73,7 +73,9 @@ module.exports = {
 
             returnMentors.push(xd);
         }
-        res.status(201).send({ message: "Success", mentors: returnMentors });
+        await setTimeout(()=>{
+            res.status(201).send({ message: "Success", mentors: returnMentors });
+        },5000); 
     },
 
     unSubscribeMentor: async (req, res) => {
