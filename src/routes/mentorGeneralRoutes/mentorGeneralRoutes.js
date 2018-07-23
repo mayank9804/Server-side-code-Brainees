@@ -51,13 +51,25 @@ function route() {
             auth.checkAuthenticated(req, res, next);
         })
         .delete(mentor.deletePost)
-    
+
 
     MentorGeneralRouter.route('/editpost/:id')
-        .all((req,res,next)=>{
-            auth.checkAuthenticated(req,res,next);
+        .all((req, res, next) => {
+            auth.checkAuthenticated(req, res, next);
         })
         .patch(mentor.editPost)
+
+    MentorGeneralRouter.route('/change')
+        .all((req, res, next) => {
+            auth.checkAuthenticated(req, res, next);
+        })
+        .post(mentor.changeDetails);
+
+    MentorGeneralRouter.route('/updatepassword')
+        .all((req, res, next) => {
+            auth.checkAuthenticated(req, res, next);
+        })
+        .post(mentor.updatePassword);
 
     return MentorGeneralRouter;
 }

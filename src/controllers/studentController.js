@@ -2,14 +2,16 @@ const models = require('../models/brainees')
 const jwt = require('jwt-simple')
 module.exports = {
     register:(req,res)=>{
+        console.log(req.body);
+        
         var entry = new models.Student({
             name : {
-                firstname: req.body.name.firstname,
-                lastname: req.body.name.lastname
+                firstname: req.body.nameGroup.firstName,
+                lastname: req.body.nameGroup.lastName
             },
-            email: req.body.email,
-            username:req.body.username,
-            password:req.body.password
+            email: req.body.emailId,
+            username:req.body.userName,
+            password:req.body.passwordGroup.password
         });
 
         entry.save((err,newStudent)=>{

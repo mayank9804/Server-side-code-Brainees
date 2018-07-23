@@ -16,9 +16,13 @@
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
+    "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "jwt-simple": "^0.5.1",
+    "localtunnel": "^1.9.0",
     "mongoose": "^5.1.7",
+    "nodemailer": "^4.6.7",
+    "nodemailer-express-handlebars": "^3.0.0",
     "nodemon": "^1.17.5"
   }
 }

@@ -224,7 +224,6 @@ module.exports = {
     },
     publishQuiz: async (req, res) => {
         try {
-
             await models.Quiz.updateOne({ _id: (req.body.id) }, { isPublished: true });
         } catch (err) {
             console.log(err);
@@ -235,8 +234,8 @@ module.exports = {
     getPublishedQuiz: async (req, res) => {
         let uQuiz;
         try {
-            await models.Quiz.find({ author: req.user, isPublished: true }).populate('questions[0]')
-                .populate('category')
+            await models.Quiz.find({ author: req.user, isPublished: true })
+                .populate('category','-_id -__v').select('-isPublished -author -__v -questions')
                 .exec(function (err, data) {
                     if (err)
                         throw err;
@@ -250,5 +249,23 @@ module.exports = {
             return res.status(503).send({ message: "Error in recieving published quizzes" });
         }
 
+    },
+    viewQuiz:async (req,res)=>{
+        let quizId = req.params.id;
+        let questions=[];
+        try {
+            let quiz = await models.Quiz.findOne({author:req.user,_id:quizId,isPublished:true})
+            .select('-author -_id -isPublished -__v').populate('questions');
+            
+            for(let e of quiz.questions){
+                let ques = await models.Question.findById(e._id).select('-_id -__v').populate('answers','-_id -__v').lean();
+                if(ques)
+                    questions.push(ques); 
+            }
+        } catch (err) {
+            console.log(`Error ${err}`);
+            res.status(503).send({message:"Error"});
+        }
+        res.status(200).send({message:"Success",questions:questions});
     }
 }

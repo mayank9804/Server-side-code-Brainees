@@ -57,13 +57,18 @@ function route() {
             auth.checkAuthenticated(req, res, next);
         })
         .patch(mentor.publishQuiz)
-        
+
     MentorQuizRouter.route('/getpublishedquiz')
         .all((req, res, next) => {
             auth.checkAuthenticated(req, res, next);
         })
         .get(mentor.getPublishedQuiz)
 
+    MentorQuizRouter.route('/viewquiz/:id')
+        .all((req, res, next) => {
+            auth.checkAuthenticated(req, res, next);
+        })
+        .get(mentor.viewQuiz)
     return MentorQuizRouter;
 }
 

@@ -4,12 +4,12 @@ module.exports = {
     register: (req, res) => {
         var entry = new models.Mentor({
             name: {
-                firstname: req.body.name.firstname,
-                lastname: req.body.name.lastname
+                firstname: req.body.nameGroup.firstName,
+                lastname: req.body.nameGroup.lastName
             },
-            email: req.body.email,
-            username: req.body.username,
-            password: req.body.password,
+            email: req.body.emailId,
+            username: req.body.userName,
+            password: req.body.passwordGroup.password,
             linkedinUrl: req.body.linkedinUrl
         });
 
@@ -20,7 +20,7 @@ module.exports = {
             }
             else {
                 let payload = { sub: newMentor._id, role: 'isMentor' };
-                let token = jwt.encode(payload, 'brainees');
+                let token = jwt.encode(payload, process.env.JWTSECRET);
                 let successMessage = `User was saved`;
                 res.status(200).send({ message: successMessage, token: token  });
             }

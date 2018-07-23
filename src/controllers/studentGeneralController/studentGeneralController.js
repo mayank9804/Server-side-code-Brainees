@@ -13,8 +13,8 @@ module.exports = {
                 throw err
 
             for (i of mentors) {
-                console.log((await models.MentorStudentSubscription.find({ mentor: i._id })).length);
-                if ((await models.MentorStudentSubscription.find({ mentor: i._id })).length != 0) { }
+                
+                if ((await models.MentorStudentSubscription.find({ mentor: i._id ,student:req.user})).length != 0) { }
                 else {
                     console.log(i);
                     finalMentors.push(i);
@@ -77,7 +77,6 @@ module.exports = {
             res.status(201).send({ message: "Success", mentors: returnMentors });
         },5000); 
     },
-
     unSubscribeMentor: async (req, res) => {
         let mentorId = req.params.id;
         let studentId = req.user;
@@ -91,14 +90,13 @@ module.exports = {
 
         res.status(201).send();
     },
-
     //Home Component
     getMyPosts: async (req, res) => {
         let mentors;
         let posts = [];
         try {
             //Array of objects!
-            mentors = await models.MentorStudentSubscription.find({ student: req.user });
+            mentors = await models.MentorStudentSubscription.find({ student: req.user ,isApproved:true});
             if (!mentors) {
                 //This is possibly not an error. Done because Amgular has a way to deal with it
                 throw err;
@@ -151,7 +149,6 @@ module.exports = {
 
         res.status(201).send({ message: "Success in fetching posts!", posts: posts });
     },
-
     //Settings Component
     getMyDetails: async (req, res) => {
         let details;
@@ -165,5 +162,50 @@ module.exports = {
         }
         
         res.status(200).send({ message: "Success", details: details });
+    },
+    changeDetails:async(req,res)=>{
+        let data = req.body;
+        console.log(data);
+        
+        try {
+            if(data.firstname){
+                await models.Student.updateOne({_id:req.user},{name:{firstname:data.firstname}});
+            }
+            else if(data.lastname){
+                await models.Student.updateOne({_id:req.user},{name:{firstname:data.lastname}});
+            }
+            else if(data.email){
+                await models.Student.updateOne({_id:req.user},{email:data.email});
+            }
+        } catch (err) {
+            console.log(err);
+            res.status(503).send({message:"Error"});
+        }
+        res.status(204).send();
+    },
+    updatePassword:async(req,res)=>{
+        try {
+            let password = await models.Student.findById(req.user).select('password');
+
+            bcrypt.compare(req.body.current, password.password, (err, result) => {
+                
+                if (!result) {
+                    res.status(403).send({ message: "Invalid Password" });
+
+                }
+                else if (result) {
+                    bcrypt.hash(req.body.password, null, null, async (err, hashNew) => {
+                        if (err)
+                            res.status(503).send({ message: "Error" });
+
+                        await models.Student.updateOne({ _id: req.user }, { password: hashNew });
+                        res.status(200).send({ message: "Success" });
+                    })
+                }
+            })
+        } catch (err) {
+            
+            res.status(503).send({ message: "Error" });
+        }
     }
 }

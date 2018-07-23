@@ -35,11 +35,22 @@ function route() {
         .get(student.getMyPosts)
 
     StudentGeneralRouter.route('/getmydetails')
-        .all((req,res,next)=>{
-            auth.checkAuthenticated(req,res,next);
+        .all((req, res, next) => {
+            auth.checkAuthenticated(req, res, next);
         })
         .get(student.getMyDetails)
 
+    StudentGeneralRouter.route('/change')
+        .all((req, res, next) => {
+            auth.checkAuthenticated(req, res, next);
+        })
+        .post(student.changeDetails);
+        
+    StudentGeneralRouter.route('/updatepassword')
+        .all((req, res, next) => {
+            auth.checkAuthenticated(req, res, next);
+        })
+        .post(student.updatePassword);
 
     return StudentGeneralRouter;
 }

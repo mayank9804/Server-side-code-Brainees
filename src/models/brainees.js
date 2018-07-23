@@ -25,28 +25,16 @@ const MentorSchema = new Schema({
     linkedinUrl: { type: String, required: true }
 });
 
-StudentSchema.pre('save', function (next) {
-    let user = this;
-    bcrypt.hash(user.password, null, null, (err, hash) => {
-        if (err)
-            return next(err);
+const AdminSchema = new Schema({
+    name: {
+        firstname: { type: String, required: true },
+        lastname: { type: String, required: true }
+    },
+    email: { type: String, required: true },
+    username: { type: String, required: true },
+    password: { type: String, required: true },
 
-        user.password = hash;
-        next();
-
-    })
-});
-
-MentorSchema.pre('save', function (next) {
-    let user = this;
-    bcrypt.hash(user.password, null, null, (err, hash) => {
-        if (err)
-            return next(err);
-
-        user.password = hash;
-        next();
-    })
-});
+})
 
 const PostSchema = new Schema({
     post: { type: String, required: true },
@@ -60,7 +48,7 @@ const mentorStudentSubscriptionSchema = new Schema({
     mentor: { type: Schema.Types.ObjectId, ref: 'Mentor' },
     isApproved: { type: Boolean, default: false }
 })
-
+// dynammic referneces
 const PostLikesSchema = new Schema({
     postId: { type: Schema.Types.ObjectId, ref: 'Post' },
     role: {
@@ -68,8 +56,6 @@ const PostLikesSchema = new Schema({
         roleId: { type: Schema.Types.ObjectId, refPath: 'role.kind' }
     }
 })
-
-
 
 const quizCategorySchema = new Schema({
     name: { type: String, required: true }
@@ -97,22 +83,44 @@ const quizSchema = new Schema({
     isPublished: { type: Boolean, required: true, default: false }
 })
 
-
-
-quizSchema.pre('remove', function (next) {
-    let quiz = this;
-    console.log("HEY");
-    for (let i of quiz.questions) {
-        let question = Question.findById(i);
-        for (let j of question.answers) {
-            Answer.remove({ _id: j });
+const analyticsSchema = new Schema({
+    student: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
+    quiz: { type: Schema.Types.ObjectId, ref: 'Quiz', required: true },
+    completed: { type: Boolean, default: false, required: true },
+    score: { type: Number, default: 0, required: true },
+    questions: [
+        {
+            question: { type: Schema.Types.ObjectId, ref: 'Question' },
+            response: { type: Schema.Types.ObjectId, ref: 'Answer' },
         }
-        Question.remove({ _id: i });
-    }
-    next();
+    ]
 })
 
+// Pre hooks
+StudentSchema.pre('save', function (next) {
+    let user = this;
+    bcrypt.hash(user.password, null, null, (err, hash) => {
+        if (err)
+            return next(err);
 
+        user.password = hash;
+        next();
+
+    })
+});
+
+MentorSchema.pre('save', function (next) {
+    let user = this;
+    bcrypt.hash(user.password, null, null, (err, hash) => {
+        if (err)
+            return next(err);
+
+        user.password = hash;
+        next();
+    })
+});
+
+// Models
 let Student = mongoose.model('Student', StudentSchema);
 let Mentor = mongoose.model('Mentor', MentorSchema);
 let Post = mongoose.model('Post', PostSchema);
@@ -122,9 +130,9 @@ let Quiz = mongoose.model('Quiz', quizSchema);
 let QuizCategory = mongoose.model('QuizCategory', quizCategorySchema);
 let Question = mongoose.model('Question', questionSchema);
 let Answer = mongoose.model('Answer', answerSchema);
-
-
-
+let Analytics = mongoose.model('Analytics', analyticsSchema);
+let Admin = mongoose.model('admin',AdminSchema)
+//Exports
 module.exports = {
     Student: Student,
     Mentor: Mentor,
@@ -134,5 +142,7 @@ module.exports = {
     Quiz: Quiz,
     QuizCategory: QuizCategory,
     Question: Question,
-    Answer: Answer
+    Answer: Answer,
+    Analytics: Analytics,
+    Admin:Admin
 }

@@ -1,17 +1,17 @@
 const models = require('../../models/brainees');
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt-nodejs');
 module.exports = {
     poststatus: (req, res) => {
-        console.log(req.user);
-        var post = new models.Post({
+
+        let post = new models.Post({
             post: req.body.content,
             author: req.user,
-
         });
 
         post.save((err, newPost) => {
             if (err) {
-                var errMsg = `Sorry, there was an error saving the post. ${err}`;
+                let errMsg = `Sorry, there was an error saving the post. ${err}`;
                 res.status(503).send({ message: errMsg });
             }
             else {
@@ -24,7 +24,7 @@ module.exports = {
     },
     getposts: async (req, res) => {
         let posts;
-        let returnPosts=[];
+        let returnPosts = [];
         try {
             posts = await models.Post.find({ author: req.user }).lean();
             console.log(posts);
@@ -36,16 +36,16 @@ module.exports = {
         }
         if (posts) {
             for (let j of posts) {
-                
+
                 //Check for everyposts if there is a like entry in likes collection.
-                
-                let likeEntryofJ = await models.PostLike.find({postId:mongoose.Types.ObjectId(j._id),role:{kind:'Mentor',roleId:mongoose.Types.ObjectId(j.author)}});
 
-                console.log("LikeEntry: "+likeEntryofJ);
+                let likeEntryofJ = await models.PostLike.find({ postId: mongoose.Types.ObjectId(j._id), role: { kind: 'Mentor', roleId: mongoose.Types.ObjectId(j.author) } });
 
-                if(likeEntryofJ.length>0)
-                    j.likestate='unlike';
-                else    
+                console.log("LikeEntry: " + likeEntryofJ);
+
+                if (likeEntryofJ.length > 0)
+                    j.likestate = 'unlike';
+                else
                     j.likestate = 'like';
 
                 returnPosts.push(j);
@@ -55,7 +55,6 @@ module.exports = {
         res.status(200).send({ message: "Success", posts: returnPosts });
 
     },
-
     getMyStudents: async (req, res) => {
         let students = [];
         let finalStudents = [];
@@ -91,7 +90,6 @@ module.exports = {
         }
         res.status(201).send();
     },
-
     newRequests: async (req, res) => {
         let students = [];
         let finalStudents = [];
@@ -118,19 +116,17 @@ module.exports = {
         res.status(201).send({ message: "Success in fetching posts!", newRequests: finalStudents });
 
     },
-
     approveStudent: async (req, res) => {
         // Will query Subscription collection to set isApproved to true later!
         try {
             // req.user ID OF THE MENTOR
             // req.body field to be changed in mentorstudentsubscription
-            await models.MentorStudentSubscription.updateOne({mentor:req.user,student:req.body._id},{isApproved:true});
+            await models.MentorStudentSubscription.updateOne({ mentor: req.user, student: req.body._id }, { isApproved: true });
         } catch (error) {
             return res.status(503).send();
         }
         res.status(204).send();
     },
-
     getMyDetails: async (req, res) => {
         let details;
         try {
@@ -141,30 +137,73 @@ module.exports = {
             // What if no mentors were found, I mean that's not an error, but then how to check for query error
             return res.status(503).send({ message: "Error in recieving details!" });
         }
-        
+
         res.status(200).send({ message: "Success", details: details });
     },
-    
-    deletePost:async(req,res)=>{
+    deletePost: async (req, res) => {
         try {
-            await models.Post.deleteOne({_id:req.params.id});
-            await models.PostLike.deleteMany({postId:req.params.id});
+            await models.Post.deleteOne({ _id: req.params.id });
+            await models.PostLike.deleteMany({ postId: req.params.id });
         } catch (error) {
             return res.status(503).send({ message: "Error in deleting post!" });
         }
         res.status(204).send();
     },
-    
-    editPost:async(req,res)=>{
+    editPost: async (req, res) => {
         //req.user (Mentor id)
         //req.params.id (Post id)
-        try{
-            await models.Post.updateOne({_id:req.params.id},{post:req.body.post,createdDate:Date.now()});
-        }catch(err){
+        try {
+            await models.Post.updateOne({ _id: req.params.id }, { post: req.body.post, createdDate: Date.now() });
+        } catch (err) {
             return res.status(503).send();
         }
         res.status(204).send();
-    }
+    },
+    changeDetails: async (req, res) => {
+        let data = req.body;
+        try {
+            if (data.firstname) {
+                await models.Mentor.updateOne({ _id: req.user }, { 'name.firstname': data.firstname });
+            }
+            else if (data.lastname) {
+                await models.Mentor.updateOne({ _id: req.user }, { 'name.lastname': data.lastname });
+            }
+            else if (data.email) {
+                await models.Mentor.updateOne({ _id: req.user }, { email: data.email });
+            }
+            else if (data.linkedinUrl) {
+                await models.Mentor.updateOne({ _id: req.user }, { linkedinUrl: data.linkedinUrl });
+            }
+        } catch (err) {
+            console.log(err);
+            res.status(503).send({ message: "Error" });
+        }
+        res.status(204).send();
+    },
+    updatePassword: async (req, res) => {
+        try {
+            let password = await models.Mentor.findById(req.user).select('password');
 
-    
+            bcrypt.compare(req.body.current, password.password, (err, result) => {
+                
+                if (!result) {
+                    res.status(403).send({ message: "Invalid Password" });
+
+                }
+                else if (result) {
+                    bcrypt.hash(req.body.password, null, null, async (err, hashNew) => {
+                        if (err)
+                            res.status(503).send({ message: "Error" });
+
+                        await models.Mentor.updateOne({ _id: req.user }, { password: hashNew });
+                        res.status(200).send({ message: "Success" });
+                    })
+                }
+            })
+        } catch (err) {
+            
+            res.status(503).send({ message: "Error" });
+        }
+
+    }
 }
