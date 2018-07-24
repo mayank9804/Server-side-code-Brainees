@@ -12,7 +12,7 @@ function checkAuthenticated(req,res,next){
     if(!payload)
         return res.status(401).send({message:'Unauthorized access!'});
     
-    if(payload.role!='isStudent' && payload.role!='isMentor')
+    if(payload.role!='isStudent' && payload.role!='isMentor' && payload.role!='isAdmin')
         return res.status(401).send({message:'Unauthorized access!'});
     
     req.user = payload.sub;

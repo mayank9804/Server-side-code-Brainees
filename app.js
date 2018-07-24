@@ -41,6 +41,6 @@ app.listen(3000,()=>{
     console.log("Server Started on port 3000");
 })
 
-mongoose.connect('mongodb://mayank:mayankisbest12@ds018708.mlab.com:18708/brainees',()=>{
+mongoose.connect('mongodb://mayank  :mayankisbest12@ds018708.mlab.com:18708/brainees',()=>{
     console.log("Mongo Connection successful!");
 });
