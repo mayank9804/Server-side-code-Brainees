@@ -37,10 +37,10 @@ app.use('/student/quiz',studentQuizRouter);
 app.use('/common/',commonRouter);
 app.use('/auth/forgot_password',forgotPasswordRouter)
 
-app.listen(process.env.PORT||3000,()=>{
+app.listen(8080,()=>{
     console.log("Server Started on port 3000");
 })
 
-mongoose.connect('mongodb://mayank  :mayankisbest12@ds018708.mlab.com:18708/brainees',()=>{
+mongoose.connect('mongodb://mayank:mayankisbest12@ds018708.mlab.com:18708/brainees',()=>{
     console.log("Mongo Connection successful!");
 });
