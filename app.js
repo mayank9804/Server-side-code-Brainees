@@ -37,7 +37,7 @@ app.use('/student/quiz',studentQuizRouter);
 app.use('/common/',commonRouter);
 app.use('/auth/forgot_password',forgotPasswordRouter)
 
-app.listen(8080,()=>{
+app.listen(process.env.PORT||3000,()=>{
     console.log("Server Started on port 3000");
 })
 
